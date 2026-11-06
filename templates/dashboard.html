@@ -1,0 +1,158 @@
+
+{% extends 'base.html' %}
+
+{% block title %}Dashboard | ShoeStore POS{% endblock %}
+
+{% block page_heading %}Dashboard{% endblock %}
+
+
+{% block content %}
+
+<div class="dashboard-welcome">
+
+    <div>
+        <h2>Good day, {{ username }}!</h2>
+
+        <p>
+            Here is an overview of your shoe shop.
+        </p>
+    </div>
+
+    <div class="date-display">
+        Shop Management
+    </div>
+
+</div>
+
+
+<div class="stats-grid">
+
+    <div class="stat-card">
+
+        <div class="stat-icon sales-icon">KSh</div>
+
+        <div>
+            <p>Total Sales Today</p>
+
+            <h2>
+                KSh {{ total_sales|floatformat:2 }}
+            </h2>
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-icon transactions-icon">↗</div>
+
+        <div>
+            <p>Transactions Today</p>
+
+            <h2>{{ total_transactions }}</h2>
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-icon products-icon">▣</div>
+
+        <div>
+            <p>Total Products</p>
+
+            <h2>{{ total_products }}</h2>
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-icon stock-icon">!</div>
+
+        <div>
+            <p>Low Stock Items</p>
+
+            <h2>{{ low_stock }}</h2>
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="dashboard-grid">
+
+    <div class="dashboard-card">
+
+        <h3>Quick Actions</h3>
+
+        <p>Manage your shop operations.</p>
+
+        <div class="quick-actions">
+
+            <a href="#" class="action-button">
+                + Add Product
+            </a>
+
+            <a href="#" class="action-button">
+                + Record Purchase
+            </a>
+
+            <a href="#" class="action-button">
+                + New Sale
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <div class="dashboard-card">
+
+        <h3>System Information</h3>
+
+        <div class="info-row">
+            <span>System</span>
+            <strong>ShoeStore POS</strong>
+        </div>
+
+        <div class="info-row">
+            <span>Account</span>
+            <strong>{{ username }}</strong>
+        </div>
+
+        <div class="info-row">
+            <span>Role</span>
+            <strong>{{ role }}</strong>
+        </div>
+
+        <div class="info-row">
+            <span>Status</span>
+            <strong class="status-active">Active</strong>
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="dashboard-card getting-started">
+
+    <h3>Getting Started</h3>
+
+    <p>
+        Your shoe shop management system is ready
+        for product registration and inventory setup.
+    </p>
+
+    <p>
+        Next step: Register your shoe brands, categories,
+        sizes and products.
+    </p>
+
+</div>
+
+{% endblock %}

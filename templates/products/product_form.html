@@ -1,0 +1,71 @@
+
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} | ShoeStore{% endblock %}
+
+{% block page_heading %}{{ title }}{% endblock %}
+
+{% block content %}
+
+<div class="form-card">
+
+    <div class="form-card-header">
+        <h2>{{ title }}</h2>
+
+        <p>
+            Enter the general information about the shoe.
+        </p>
+    </div>
+
+
+    <form method="POST" enctype="multipart/form-data">
+
+        {% csrf_token %}
+
+        {% for field in form %}
+
+            <div class="form-group">
+
+                <label for="{{ field.id_for_label }}">
+                    {{ field.label }}
+                </label>
+
+                {{ field }}
+
+                {% if field.help_text %}
+                    <small>{{ field.help_text }}</small>
+                {% endif %}
+
+                {% for error in field.errors %}
+                    <p class="field-error">{{ error }}</p>
+                {% endfor %}
+
+            </div>
+
+        {% endfor %}
+
+
+        {% if form.non_field_errors %}
+            <div class="error-message">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+
+        <div class="form-actions">
+
+            <a href="{% url 'product_list' %}" class="cancel-button">
+                Cancel
+            </a>
+
+            <button type="submit" class="primary-button">
+                Save Product
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

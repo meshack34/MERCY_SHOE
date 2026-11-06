@@ -1,0 +1,151 @@
+
+{% extends 'base.html' %}
+
+{% block title %}Products | ShoeStore{% endblock %}
+
+{% block page_heading %}Product Management{% endblock %}
+
+
+{% block content %}
+
+<div class="page-toolbar">
+
+    <div>
+        <h2>Products</h2>
+
+        <p>Manage shoe brands, products and variations.</p>
+    </div>
+
+    <a href="{% url 'product_create' %}" class="primary-button">
+        + Add New Product
+    </a>
+
+</div>
+
+
+<div class="dashboard-card">
+
+    <form method="GET" class="search-form">
+
+        <input
+            type="text"
+            name="search"
+            value="{{ search }}"
+            placeholder="Search product or brand..."
+        >
+
+        <button type="submit" class="primary-button">
+            Search
+        </button>
+
+    </form>
+
+
+    <div class="table-responsive">
+
+        <table class="data-table">
+
+            <thead>
+
+                <tr>
+                    <th>Image</th>
+                    <th>Product</th>
+                    <th>Brand</th>
+                    <th>Category</th>
+                    <th>Variants</th>
+                    <th>Actions</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for product in products %}
+
+                    <tr>
+
+                        <td>
+
+                            {% if product.image %}
+
+                                <img
+                                    src="{{ product.image.url }}"
+                                    class="product-thumbnail"
+                                    alt="{{ product.name }}"
+                                >
+
+                            {% else %}
+
+                                <div class="no-image">No image</div>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+                            <strong>{{ product.name }}</strong>
+                        </td>
+
+
+                        <td>{{ product.brand.name }}</td>
+
+
+                        <td>{{ product.category.name }}</td>
+
+
+                        <td>
+                            {{ product.variants.count }}
+                        </td>
+
+
+                        <td>
+
+                            <div class="table-actions">
+
+                                <a
+                                    href="{% url 'product_variant_list' product.id %}"
+                                >
+                                    Variants
+                                </a>
+
+                                <a
+                                    href="{% url 'product_variant_create' product.id %}"
+                                >
+                                    Add Size
+                                </a>
+
+                                <a
+                                    href="{% url 'product_edit' product.id %}"
+                                >
+                                    Edit
+                                </a>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+
+                        <td colspan="6" class="empty-table">
+                            No products registered yet.
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

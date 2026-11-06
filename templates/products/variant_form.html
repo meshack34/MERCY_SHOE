@@ -1,0 +1,73 @@
+
+{% extends 'base.html' %}
+
+{% block title %}Add Shoe Variant | ShoeStore{% endblock %}
+
+{% block page_heading %}Add Shoe Variant{% endblock %}
+
+
+{% block content %}
+
+<div class="form-card">
+
+    <div class="form-card-header">
+
+        <h2>{{ product.brand.name }} {{ product.name }}</h2>
+
+        <p>
+            Add the shoe size, colour, price and stock quantity.
+        </p>
+
+    </div>
+
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="error-message">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+
+        {% for field in form %}
+
+            <div class="form-group">
+
+                <label for="{{ field.id_for_label }}">
+                    {{ field.label }}
+                </label>
+
+                {{ field }}
+
+                {% for error in field.errors %}
+                    <p class="field-error">{{ error }}</p>
+                {% endfor %}
+
+            </div>
+
+        {% endfor %}
+
+
+        <div class="form-actions">
+
+            <a
+                href="{% url 'product_list' %}"
+                class="cancel-button"
+            >
+                Cancel
+            </a>
+
+            <button type="submit" class="primary-button">
+                Save Variant & Generate Barcode
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

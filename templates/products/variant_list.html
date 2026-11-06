@@ -1,0 +1,109 @@
+
+{% extends 'base.html' %}
+
+{% block title %}Shoe Variants | ShoeStore{% endblock %}
+
+{% block page_heading %}Product Variants{% endblock %}
+
+
+{% block content %}
+
+<div class="page-toolbar">
+
+    <div>
+
+        <h2>{{ product.brand.name }} {{ product.name }}</h2>
+
+        <p>Manage available sizes, colours and barcodes.</p>
+
+    </div>
+
+    <a
+        href="{% url 'product_variant_create' product.id %}"
+        class="primary-button"
+    >
+        + Add Variant
+    </a>
+
+</div>
+
+
+<div class="dashboard-card">
+
+    <div class="table-responsive">
+
+        <table class="data-table">
+
+            <thead>
+
+                <tr>
+                    <th>Size</th>
+                    <th>Colour</th>
+                    <th>Buying Price</th>
+                    <th>Selling Price</th>
+                    <th>Stock</th>
+                    <th>Barcode</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for variant in variants %}
+
+                    <tr>
+
+                        <td>{{ variant.size }}</td>
+
+                        <td>{{ variant.colour }}</td>
+
+                        <td>
+                            KSh {{ variant.buying_price|floatformat:2 }}
+                        </td>
+
+                        <td>
+                            KSh {{ variant.selling_price|floatformat:2 }}
+                        </td>
+
+                        <td>{{ variant.stock_quantity }}</td>
+
+                        <td>
+
+                            <strong>{{ variant.barcode }}</strong>
+
+                            {% if variant.barcode_image %}
+
+                                <br>
+
+                                <img
+                                    src="{{ variant.barcode_image.url }}"
+                                    class="barcode-preview"
+                                    alt="Barcode {{ variant.barcode }}"
+                                >
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+                        <td colspan="6">
+                            No variants registered yet.
+                        </td>
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}
