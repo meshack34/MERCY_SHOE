@@ -1,0 +1,91 @@
+
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="page-toolbar">
+    <div>
+        <h2>Purchase #{{ purchase.id }}</h2>
+        <p>Stock purchase details and costs.</p>
+    </div>
+
+    <a href="{% url 'purchase_list' %}" class="cancel-button">
+        Back to Purchases
+    </a>
+</div>
+
+<div class="form-card">
+
+    <h3>Purchase Information</h3>
+
+    <p><strong>Supplier:</strong> {{ purchase.supplier.name }}</p>
+
+    <p><strong>Invoice:</strong> {{ purchase.invoice_number|default:"-" }}</p>
+
+    <p><strong>Purchase Date:</strong> {{ purchase.purchase_date }}</p>
+
+    <p><strong>Recorded By:</strong> {{ purchase.recorded_by.username }}</p>
+
+    <hr>
+
+    <h3>Purchased Shoes</h3>
+
+    <div class="table-responsive">
+
+        <table class="data-table">
+
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Size</th>
+                    <th>Colour</th>
+                    <th>Quantity</th>
+                    <th>Buying Price</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for item in purchase.items.all %}
+
+                <tr>
+                    <td>
+                        {{ item.variant.product.brand.name }}
+                        {{ item.variant.product.name }}
+                    </td>
+
+                    <td>{{ item.variant.size }}</td>
+
+                    <td>{{ item.variant.colour }}</td>
+
+                    <td>{{ item.quantity }}</td>
+
+                    <td>KSh {{ item.unit_cost|floatformat:2 }}</td>
+
+                    <td>KSh {{ item.line_total|floatformat:2 }}</td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+            <tfoot>
+                <tr>
+                    <th colspan="5">Grand Total</th>
+
+                    <th>
+                        KSh {{ purchase.total_cost|floatformat:2 }}
+                    </th>
+                </tr>
+            </tfoot>
+
+        </table>
+
+    </div>
+
+    <p><strong>Notes:</strong> {{ purchase.notes|default:"-" }}</p>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,111 @@
+
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="page-toolbar">
+    <div>
+        <h2>Record Stock Purchase</h2>
+        <p>Enter the supplier and shoes received.</p>
+    </div>
+
+    <a href="{% url 'purchase_list' %}" class="cancel-button">
+        Back
+    </a>
+</div>
+
+<div class="form-card">
+
+    <h3>Purchase Information</h3>
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        {% if purchase_form.non_field_errors %}
+            <div class="field-error">
+                {{ purchase_form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        {% for field in purchase_form %}
+
+            <div class="form-group">
+
+                <label for="{{ field.id_for_label }}">
+                    {{ field.label }}
+                </label>
+
+                {{ field }}
+
+                {% if field.errors %}
+                    <div class="field-error">
+                        {{ field.errors }}
+                    </div>
+                {% endif %}
+
+            </div>
+
+        {% endfor %}
+
+        <hr>
+
+        <h3>Shoes Purchased</h3>
+
+        <p>Select the shoe variant, quantity and buying price.</p>
+
+        {{ item_formset.management_form }}
+
+        {% if item_formset.non_form_errors %}
+            <div class="field-error">
+                {{ item_formset.non_form_errors }}
+            </div>
+        {% endif %}
+
+        {% for item_form in item_formset %}
+
+            <div class="purchase-item-row">
+
+                <h4>Purchase Item {{ forloop.counter }}</h4>
+
+                {% for field in item_form %}
+
+                    <div class="form-group">
+
+                        <label for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                        </label>
+
+                        {{ field }}
+
+                        {% if field.errors %}
+                            <div class="field-error">
+                                {{ field.errors }}
+                            </div>
+                        {% endif %}
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% endfor %}
+
+        <div class="form-actions">
+
+            <a href="{% url 'purchase_list' %}" class="cancel-button">
+                Cancel
+            </a>
+
+            <button type="submit" class="primary-button">
+                Save Purchase & Update Stock
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

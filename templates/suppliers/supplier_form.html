@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="page-toolbar">
+    <div>
+        <h2>{{ title }}</h2>
+        <p>Enter the supplier's details below.</p>
+    </div>
+
+    <a href="{% url 'supplier_list' %}" class="cancel-button">
+        Back to Suppliers
+    </a>
+</div>
+
+<div class="form-card">
+    <form method="POST">
+        {% csrf_token %}
+
+        {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">
+                    {{ field.label }}
+                </label>
+
+                {{ field }}
+
+                {% if field.errors %}
+                    <div class="field-error">
+                        {{ field.errors }}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <div class="form-actions">
+            <a href="{% url 'supplier_list' %}" class="cancel-button">
+                Cancel
+            </a>
+
+            <button type="submit" class="primary-button">
+                Save Supplier
+            </button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

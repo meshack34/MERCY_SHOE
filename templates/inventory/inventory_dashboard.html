@@ -1,0 +1,156 @@
+
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="page-toolbar">
+    <div>
+        <h2>Inventory Management</h2>
+        <p>Monitor shoe quantities and stock levels.</p>
+    </div>
+
+    <a href="{% url 'stock_adjustment' %}" class="primary-button">
+        + Adjust Stock
+    </a>
+</div>
+
+<div class="dashboard-grid">
+
+    <div class="stat-card">
+        <span>Total Shoe Variants</span>
+        <h2>{{ total_variants }}</h2>
+    </div>
+
+    <div class="stat-card">
+        <span>Total Pairs in Stock</span>
+        <h2>{{ total_pairs }}</h2>
+    </div>
+
+    <div class="stat-card">
+        <span>Low Stock Variants</span>
+        <h2>{{ low_stock_count }}</h2>
+    </div>
+
+</div>
+
+<div class="page-toolbar">
+    <div>
+        <h3>Current Stock</h3>
+        <p>Stock quantities for every shoe size and colour.</p>
+    </div>
+
+    <a href="{% url 'stock_movement_list' %}">
+        View Stock History
+    </a>
+</div>
+
+<div class="table-responsive">
+
+    <table class="data-table">
+
+        <thead>
+            <tr>
+                <th>Brand</th>
+                <th>Product</th>
+                <th>Size</th>
+                <th>Colour</th>
+                <th>Barcode</th>
+                <th>Quantity</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for variant in variants %}
+
+            <tr>
+                <td>{{ variant.product.brand.name }}</td>
+
+                <td>{{ variant.product.name }}</td>
+
+                <td>{{ variant.size }}</td>
+
+                <td>{{ variant.colour }}</td>
+
+                <td>{{ variant.barcode }}</td>
+
+                <td>{{ variant.stock_quantity }}</td>
+
+                <td>
+                    {% if variant.stock_quantity == 0 %}
+                        <span class="stock-out">Out of Stock</span>
+
+                    {% elif variant.stock_quantity <= 5 %}
+                        <span class="stock-low">Low Stock</span>
+
+                    {% else %}
+                        <span class="stock-available">Available</span>
+                    {% endif %}
+                </td>
+            </tr>
+
+            {% empty %}
+
+            <tr>
+                <td colspan="7" class="empty-table">
+                    No shoe variants found.
+                </td>
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+<div class="page-toolbar">
+    <div>
+        <h3>Low Stock Alert</h3>
+        <p>Variants with five pairs or fewer.</p>
+    </div>
+</div>
+
+<div class="table-responsive">
+
+    <table class="data-table">
+
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Size</th>
+                <th>Colour</th>
+                <th>Available Pairs</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for variant in low_stock_variants %}
+
+            <tr>
+                <td>{{ variant.product }}</td>
+                <td>{{ variant.size }}</td>
+                <td>{{ variant.colour }}</td>
+                <td>{{ variant.stock_quantity }}</td>
+            </tr>
+
+            {% empty %}
+
+            <tr>
+                <td colspan="4">
+                    No low-stock products.
+                </td>
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}

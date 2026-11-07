@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="page-toolbar">
+    <div>
+        <h2>Suppliers</h2>
+        <p>Manage the people and businesses that supply your shoes.</p>
+    </div>
+
+    <a href="{% url 'supplier_create' %}" class="primary-button">
+        + Add Supplier
+    </a>
+</div>
+
+<form method="GET" class="search-form">
+    <input
+        type="text"
+        name="search"
+        placeholder="Search supplier..."
+        value="{{ search }}"
+    >
+    <button type="submit" class="primary-button">Search</button>
+</form>
+
+<div class="table-responsive">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Supplier</th>
+                <th>Contact Person</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Address</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for supplier in suppliers %}
+            <tr>
+                <td>{{ supplier.name }}</td>
+                <td>{{ supplier.contact_person|default:"-" }}</td>
+                <td>{{ supplier.phone }}</td>
+                <td>{{ supplier.email|default:"-" }}</td>
+                <td>{{ supplier.address|default:"-" }}</td>
+                <td>
+                    <a href="{% url 'supplier_edit' supplier.id %}">
+                        Edit
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="empty-table">
+                    No suppliers registered yet.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

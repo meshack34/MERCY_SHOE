@@ -1,0 +1,65 @@
+
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="page-toolbar">
+    <div>
+        <h2>Stock Adjustment</h2>
+        <p>Record damaged shoes, customer returns or stock corrections.</p>
+    </div>
+
+    <a href="{% url 'inventory_dashboard' %}" class="cancel-button">
+        Back to Inventory
+    </a>
+</div>
+
+<div class="form-card">
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="field-error">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        {% for field in form %}
+
+            <div class="form-group">
+
+                <label for="{{ field.id_for_label }}">
+                    {{ field.label }}
+                </label>
+
+                {{ field }}
+
+                {% if field.errors %}
+                    <div class="field-error">
+                        {{ field.errors }}
+                    </div>
+                {% endif %}
+
+            </div>
+
+        {% endfor %}
+
+        <div class="form-actions">
+
+            <a href="{% url 'inventory_dashboard' %}" class="cancel-button">
+                Cancel
+            </a>
+
+            <button type="submit" class="primary-button">
+                Save Stock Adjustment
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,401 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Point of Sale</h1>
+        <p>Scan shoe barcodes and add products to the shopping cart.</p>
+    </div>
+</div>
+
+<div class="pos-layout">
+
+    <div class="pos-products">
+
+        <div class="form-card">
+            <h3>Scan Barcode</h3>
+
+            <p class="help-text">
+                Connect your USB scanner and scan a shoe barcode below.
+            </p>
+
+            <input
+                type="text"
+                id="barcode-input"
+                class="barcode-input"
+                placeholder="Click here and scan barcode..."
+                autocomplete="off"
+                autofocus
+            >
+
+            <div id="scan-message" class="scan-message"></div>
+        </div>
+
+        <div class="form-card">
+            <h3>Customer Details</h3>
+
+            <div class="form-group">
+                <label for="customer-name">Customer Name</label>
+                <input
+                    type="text"
+                    id="customer-name"
+                    placeholder="Optional"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="customer-phone">Customer Phone</label>
+                <input
+                    type="text"
+                    id="customer-phone"
+                    placeholder="Optional"
+                >
+            </div>
+        </div>
+
+    </div>
+
+    <div class="pos-cart form-card">
+
+        <h3>Shopping Cart</h3>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Size</th>
+                        <th>Price</th>
+                        <th>Qty</th>
+                        <th>Total</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody id="cart-items">
+                    <tr>
+                        <td colspan="6" class="empty-cart">
+                            No shoes added yet.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="cart-summary">
+            <span>Total Amount</span>
+            <h2 id="cart-total">KSh 0.00</h2>
+        </div>
+
+        <button
+            type="button"
+            id="save-sale-button"
+            class="btn-primary"
+            disabled
+        >
+            Save Draft Sale
+        </button>
+
+        <div id="sale-message" class="scan-message"></div>
+
+    </div>
+
+</div>
+
+<input type="hidden" id="csrf-token" value="{{ csrf_token }}">
+
+<script>
+const barcodeInput = document.getElementById('barcode-input');
+const cartBody = document.getElementById('cart-items');
+const cartTotal = document.getElementById('cart-total');
+const scanMessage = document.getElementById('scan-message');
+const saleMessage = document.getElementById('sale-message');
+const saveSaleButton = document.getElementById('save-sale-button');
+
+let cart = [];
+
+
+function showScanMessage(message, success = true) {
+    scanMessage.textContent = message;
+    scanMessage.className = success
+        ? 'scan-message success-message'
+        : 'scan-message error-message';
+}
+
+
+function formatMoney(amount) {
+    return 'KSh ' + Number(amount).toLocaleString(
+        'en-KE',
+        {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }
+    );
+}
+
+
+async function lookupBarcode(barcode) {
+
+    try {
+
+        const response = await fetch(
+            `/sales/barcode-lookup/?barcode=${encodeURIComponent(barcode)}`
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            showScanMessage(data.message || 'Product not found.', false);
+            return;
+        }
+
+        addToCart(data.variant);
+
+    } catch (error) {
+        showScanMessage('Could not connect to the server.', false);
+    }
+}
+
+
+function addToCart(product) {
+
+    if (product.stock < 1) {
+        showScanMessage('This shoe is out of stock.', false);
+        return;
+    }
+
+    const existing = cart.find(
+        item => item.variant_id === product.id
+    );
+
+    if (existing) {
+
+        if (existing.quantity >= product.stock) {
+            showScanMessage('You cannot add more than the available stock.', false);
+            return;
+        }
+
+        existing.quantity += 1;
+
+    } else {
+
+        cart.push({
+            variant_id: product.id,
+            barcode: product.barcode,
+            name: product.brand + ' ' + product.product,
+            size: product.size,
+            colour: product.colour,
+            price: Number(product.price),
+            stock: Number(product.stock),
+            quantity: 1
+        });
+    }
+
+    renderCart();
+
+    showScanMessage(
+        product.brand + ' ' + product.product + ' added to cart.'
+    );
+}
+
+
+function renderCart() {
+
+    cartBody.innerHTML = '';
+
+    if (cart.length === 0) {
+
+        cartBody.innerHTML = `
+            <tr>
+                <td colspan="6" class="empty-cart">
+                    No shoes added yet.
+                </td>
+            </tr>
+        `;
+
+        cartTotal.textContent = formatMoney(0);
+        saveSaleButton.disabled = true;
+
+        return;
+    }
+
+    let total = 0;
+
+    cart.forEach((item, index) => {
+
+        const lineTotal = item.price * item.quantity;
+
+        total += lineTotal;
+
+        const row = document.createElement('tr');
+
+        row.innerHTML = `
+            <td>
+                <strong>${escapeHtml(item.name)}</strong>
+                <small>${escapeHtml(item.colour)}</small>
+            </td>
+
+            <td>${escapeHtml(item.size)}</td>
+
+            <td>${formatMoney(item.price)}</td>
+
+            <td>
+                <div class="quantity-controls">
+                    <button type="button" data-action="decrease" data-index="${index}">-</button>
+                    <span>${item.quantity}</span>
+                    <button type="button" data-action="increase" data-index="${index}">+</button>
+                </div>
+            </td>
+
+            <td>${formatMoney(lineTotal)}</td>
+
+            <td>
+                <button
+                    type="button"
+                    class="remove-item"
+                    data-action="remove"
+                    data-index="${index}"
+                >
+                    Remove
+                </button>
+            </td>
+        `;
+
+        cartBody.appendChild(row);
+    });
+
+    cartTotal.textContent = formatMoney(total);
+    saveSaleButton.disabled = false;
+}
+
+
+function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, function(character) {
+        const entities = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+
+        return entities[character];
+    });
+}
+
+
+cartBody.addEventListener('click', function(event) {
+
+    const button = event.target.closest('button[data-action]');
+
+    if (!button) {
+        return;
+    }
+
+    const index = Number(button.dataset.index);
+    const action = button.dataset.action;
+    const item = cart[index];
+
+    if (!item) {
+        return;
+    }
+
+    if (action === 'increase') {
+
+        if (item.quantity < item.stock) {
+            item.quantity += 1;
+        } else {
+            showScanMessage('Available stock limit reached.', false);
+        }
+
+    } else if (action === 'decrease') {
+
+        item.quantity -= 1;
+
+        if (item.quantity <= 0) {
+            cart.splice(index, 1);
+        }
+
+    } else if (action === 'remove') {
+
+        cart.splice(index, 1);
+    }
+
+    renderCart();
+});
+
+
+barcodeInput.addEventListener('keydown', function(event) {
+
+    if (event.key === 'Enter') {
+
+        event.preventDefault();
+
+        const barcode = barcodeInput.value.trim();
+
+        if (!barcode) {
+            return;
+        }
+
+        lookupBarcode(barcode);
+
+        barcodeInput.value = '';
+    }
+});
+
+
+saveSaleButton.addEventListener('click', async function() {
+
+    if (cart.length === 0) {
+        return;
+    }
+
+    saveSaleButton.disabled = true;
+    saleMessage.textContent = 'Saving draft sale...';
+
+    const payload = {
+        customer_name: document.getElementById('customer-name').value,
+        customer_phone: document.getElementById('customer-phone').value,
+
+        items: cart.map(item => ({
+            variant_id: item.variant_id,
+            quantity: item.quantity
+        }))
+    };
+
+    try {
+
+        const response = await fetch('/sales/create-draft/', {
+            method: 'POST',
+
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.getElementById('csrf-token').value
+            },
+
+            body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            saleMessage.textContent = data.message || 'Could not save sale.';
+            saveSaleButton.disabled = false;
+            return;
+        }
+
+        window.location.href = data.redirect_url;
+
+    } catch (error) {
+
+        saleMessage.textContent = 'A connection error occurred.';
+        saveSaleButton.disabled = false;
+    }
+});
+
+
+barcodeInput.focus();
+</script>
+
+{% endblock %}
